@@ -1,0 +1,70 @@
+QUERYS SQL Ð ATHENA
+
+ZONA RAW:
+
+----------------------------------------------------------------------------------------------------------------------
+
+WITH RankedCities AS (
+	SELECT continent,
+		country,
+		capital_city,
+		capital_population,
+		ROW_NUMBER() OVER (
+			PARTITION BY continent
+			ORDER BY capital_population DESC
+		) AS RowNum
+	FROM "capital_cities"
+)
+SELECT continent,
+	country,
+	capital_city,
+	capital_population
+FROM RankedCities
+WHERE RowNum <= 3;
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+SELECT mountain_range, highest_mount, height
+FROM "mountain_ranges"
+ORDER BY height DESC
+LIMIT 10;
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+SELECT mountain_range, highest_mount, height
+FROM "mountain_ranges"
+ORDER BY height DESC
+LIMIT 10;
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+SELECT
+  country,
+  CAST(REGEXP_REPLACE(co2_per_capita, '[^0-9.]', '') AS DECIMAL(10, 2)) AS co2_value,
+  CAST(REGEXP_REPLACE(methane_per_capita, '[^0-9.]', '') AS DECIMAL(10, 2)) AS methane_value
+FROM
+  "greenhouse_emission"
+WHERE
+  CAST(REGEXP_REPLACE(co2_per_capita, '[^0-9.]', '') AS DECIMAL(10, 2)) > 10.0
+  AND CAST(REGEXP_REPLACE(methane_per_capita, '[^0-9.]', '') AS DECIMAL(10, 2)) > 4.0
+ORDER BY
+  co2_value DESC,
+  methane_value DESC
+LIMIT 10;
+
+----------------------------------------------------------------------------------------------------------------------
+
+ZONA TRUSTED
+
+SELECT "country",
+       CAST("capital_population" AS DOUBLE) AS capital_pop
+FROM "AwsDataCatalog"."trusted_db"."trusted" 
+WHERE "capital_population" is not null
+GROUP BY 1,2
+ORDER BY 2 DESC;
+
+----------------------------------------------------------------------------------------------------------------------
